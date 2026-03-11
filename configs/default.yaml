@@ -1,0 +1,58 @@
+experiment:
+  seed: null
+  deterministic: false
+
+project:
+  name: deepmoon
+
+data:
+  train_path: data/external/zenodo/train_images.hdf5
+  val_path: data/external/zenodo/dev_images.hdf5
+  test_path: data/external/zenodo/test_images.hdf5
+  input_key: input_images
+  target_key: target_masks
+  image_size: 256
+  batch_size: 2
+  num_workers: 0
+  normalize_low: 0.1
+  normalize_high: 1.0
+  use_synthetic_if_missing: true
+  synthetic_samples:
+    train: 8
+    val: 4
+    test: 4
+
+model:
+  arch: trans_unet
+  in_channels: 1
+  out_channels: 1
+  base_channels: 48
+  dropout: 0.1
+  transformer_dim: 384
+  transformer_layers: 6
+  transformer_heads: 8
+  transformer_mlp_ratio: 4.0
+
+training:
+  epochs: 2
+  learning_rate: 0.0003
+  weight_decay: 0.0001
+  amp: true
+  early_stopping_patience: 3
+  checkpoint_dir: outputs/checkpoints
+  checkpoint_name: best.pt
+  save_best_only: true
+  device: auto
+
+postprocessing:
+  llt2: 1.8
+  rt2: 1.0
+  minrad: 5
+  maxrad: 40
+  template_thresh: 0.5
+  target_thresh: 0.1
+
+prediction:
+  model_path: outputs/checkpoints/best.pt
+  prediction_path: outputs/predictions/test_preds.hdf5
+  result_path: outputs/predictions/test_craterdist.npy

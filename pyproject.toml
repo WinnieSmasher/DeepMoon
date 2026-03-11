@@ -1,0 +1,54 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "deepmoon"
+version = "0.1.0"
+description = "基于 PyTorch 的月球陨石坑检测与后处理工具链"
+readme = "README.md"
+requires-python = ">=3.9"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [
+  { name = "DeepMoon Contributors" }
+]
+dependencies = [
+  "torch>=2.0",
+  "numpy>=1.24,<2.0",
+  "h5py>=3.8",
+  "opencv-python>=4.7",
+  "scikit-image>=0.20",
+  "PyYAML>=6.0",
+  "tqdm>=4.65"
+]
+
+[project.optional-dependencies]
+dev = [
+  "build>=1.2",
+  "pytest>=8.0",
+  "flake8>=7.0"
+]
+
+[tool.setuptools]
+py-modules = []
+packages = [
+  "deepmoon",
+  "deepmoon.data",
+  "deepmoon.models",
+  "deepmoon.postprocessing",
+  "deepmoon.training",
+  "deepmoon.utils"
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = [
+  "test_dataset.py",
+  "test_models.py",
+  "test_transforms.py",
+  "test_losses.py",
+  "test_crater_extraction.py",
+  "test_seed.py"
+]
+addopts = "-q"
